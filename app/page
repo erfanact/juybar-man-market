@@ -1,0 +1,56 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
+type Product = { id: number; name: string; category: string; price: number; unit: string; emoji: string };
+const products: Product[] = [
+  { id: 1, name: "سیب قرمز", category: "میوه و سبزی", price: 78000, unit: "هر کیلو", emoji: "🍎" },
+  { id: 2, name: "پرتقال شمال", category: "میوه و سبزی", price: 65000, unit: "هر کیلو", emoji: "🍊" },
+  { id: 3, name: "موز", category: "میوه و سبزی", price: 115000, unit: "هر کیلو", emoji: "🍌" },
+  { id: 4, name: "خیار", category: "میوه و سبزی", price: 42000, unit: "هر کیلو", emoji: "🥒" },
+  { id: 5, name: "گوجه‌فرنگی", category: "میوه و سبزی", price: 39000, unit: "هر کیلو", emoji: "🍅" },
+  { id: 6, name: "سبزی خوردن", category: "میوه و سبزی", price: 25000, unit: "هر بسته", emoji: "🥬" },
+  { id: 7, name: "شیر کم‌چرب", category: "لبنیات", price: 38000, unit: "هر بطری", emoji: "🥛" },
+  { id: 8, name: "ماست", category: "لبنیات", price: 52000, unit: "هر بسته", emoji: "🥣" },
+  { id: 9, name: "پنیر", category: "لبنیات", price: 69000, unit: "هر بسته", emoji: "🧀" },
+  { id: 10, name: "تخم‌مرغ", category: "لبنیات", price: 99000, unit: "هر شانه", emoji: "🥚" },
+  { id: 11, name: "برنج ایرانی", category: "مواد غذایی", price: 185000, unit: "هر کیلو", emoji: "🍚" },
+  { id: 12, name: "روغن مایع", category: "مواد غذایی", price: 89000, unit: "هر بطری", emoji: "🫒" },
+  { id: 13, name: "عدس", category: "مواد غذایی", price: 95000, unit: "هر کیلو", emoji: "🫘" },
+  { id: 14, name: "ماکارونی", category: "مواد غذایی", price: 32000, unit: "هر بسته", emoji: "🍝" },
+];
+const money = (n: number) => new Intl.NumberFormat("fa-IR").format(n) + " تومان";
+
+export default function Home() {
+  const [cart, setCart] = useState<Record<number, number>>({});
+  const [category, setCategory] = useState("همه محصولات");
+  const [showCart, setShowCart] = useState(false);
+  const [notice, setNotice] = useState("");
+  const categories = ["همه محصولات", "میوه و سبزی", "لبنیات", "مواد غذایی"];
+  const visible = useMemo(() => category === "همه محصولات" ? products : products.filter(p => p.category === category), [category]);
+  const count = Object.values(cart).reduce((a, b) => a + b, 0);
+  const subtotal = products.reduce((sum, p) => sum + p.price * (cart[p.id] || 0), 0);
+  const change = (id: number, amount: number) => setCart(old => ({ ...old, [id]: Math.max(0, (old[id] || 0) + amount) }));
+
+  return (
+    <main className="shell">
+      <header className="topbar">
+        <div className="brandmark">ج</div>
+        <div><p className="eyebrow">خرید روزانه، آسان و مطمئن</p><h1>آنلاین مارکت <span>جویبار من</span></h1></div>
+        <button className="cart" onClick={() => setShowCart(true)}>سبد خرید <b>{count.toLocaleString("fa-IR")}</b></button>
+      </header>
+      <section className="hero">
+        <div className="hero-copy"><span className="tag">ویژه شهر جویبار</span><h2>تازگی را<br/><em>به خانه بیاورید</em></h2><p>میوه، تره‌بار، لبنیات و مایحتاج روزانه؛ ساده و سریع انتخاب کنید.</p><a className="cta" href="#products">مشاهده محصولات</a></div>
+        <div className="hero-art" aria-hidden="true"><span>تازه</span><div className="fruit fruit-one">🍊</div><div className="fruit fruit-two">🍎</div><div className="fruit fruit-three">🥬</div></div>
+      </section>
+      <section className="delivery"><div><strong>ارسال در شهر جویبار</strong><small>فعلاً فقط محدوده شهر جویبار</small></div><div><strong>هزینه پیک: ۲۹٬۰۰۰ تومان</strong><small>به مبلغ سبد اضافه می‌شود</small></div><div><strong>پرداخت در محل</strong><small>پس از تأیید سفارش</small></div></section>
+      <section id="products" className="products">
+        <div className="section-heading"><div><p className="eyebrow">انتخاب روزانه شما</p><h2>محصولات فروشگاه</h2></div><span>قیمت‌ها نمونه و قابل ویرایش‌اند</span></div>
+        <nav className="filters" aria-label="فیلتر دسته‌بندی">{categories.map(c => <button key={c} className={category === c ? "filter active" : "filter"} onClick={() => setCategory(c)}>{c}</button>)}</nav>
+        <div className="product-grid">{visible.map(p => <article className="product-card" key={p.id}><div className="product-emoji">{p.emoji}</div><span className="product-category">{p.category}</span><h3>{p.name}</h3><p className="unit">{p.unit}</p><div className="product-bottom"><strong>{money(p.price)}</strong><button className="add" onClick={() => change(p.id, 1)} aria-label={`افزودن ${p.name} به سبد`}>+</button></div>{(cart[p.id] || 0) > 0 && <div className="quantity"><button onClick={() => change(p.id, -1)}>−</button><b>{(cart[p.id] || 0).toLocaleString("fa-IR")}</b><button onClick={() => change(p.id, 1)}>+</button></div>}</article>)}</div>
+      </section>
+      <footer><strong>آنلاین مارکت جویبار من</strong><span>برای سفارش واقعی، قیمت و موجودی باید تأیید و درگاه ثبت سفارش متصل شود.</span></footer>
+      {showCart && <div className="overlay" onClick={() => setShowCart(false)}><section className="cart-panel" onClick={e => e.stopPropagation()}><div className="cart-title"><h2>سبد خرید شما</h2><button className="close" onClick={() => setShowCart(false)}>×</button></div>{count === 0 ? <p className="empty">سبد خرید خالی است. از محصولات فروشگاه انتخاب کنید.</p> : <><div className="cart-lines">{products.filter(p => cart[p.id]).map(p => <div className="cart-line" key={p.id}><span>{p.emoji} {p.name}</span><div><button onClick={() => change(p.id, -1)}>−</button><b>{(cart[p.id] || 0).toLocaleString("fa-IR")}</b><button onClick={() => change(p.id, 1)}>+</button></div><strong>{money(p.price * cart[p.id])}</strong></div>)}</div><div className="totals"><p>جمع محصولات <b>{money(subtotal)}</b></p><p>هزینه ارسال <b>{money(29000)}</b></p><p className="grand">مبلغ قابل پرداخت <b>{money(subtotal + 29000)}</b></p></div><p className="demo-note">این نسخه فعلاً نمایشی است؛ سفارش و پرداخت هنوز به سرور متصل نیست.</p><button className="checkout" onClick={() => setNotice("سبد خرید آماده است؛ برای فعال شدن ثبت سفارش باید پایگاه داده و اطلاعات تماس فروشگاه متصل شود.")}>ادامه ثبت سفارش</button>{notice && <p className="notice">{notice}</p>}</>}</section></div>}
+    </main>
+  );
+}
