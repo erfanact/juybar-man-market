@@ -1,0 +1,11 @@
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "آنلاین مارکت جویبار من",
+  description: "خرید میوه، تره‌بار، لبنیات و مواد غذایی در شهر جویبار",
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return <html lang="fa" dir="rtl"><body>{children}</body></html>;
+}
